@@ -1,0 +1,55 @@
+version: '3.7'
+services:
+
+  # Java demo application
+  java:
+    build:
+      context: .
+      dockerfile: okhttp-and-jedis.Dockerfile
+    image: okhttp
+    restart: unless-stopped
+    depends_on:
+      - redis
+      - otelcol-agent
+    entrypoint: 'bash'
+    environment:
+      REDIS_HOSTNAME: 'redis'
+    command: './runJava.sh'
+  redis:
+    image: redis
+    ports:
+      - "6379:6379"
+
+  # Agent
+  otelcol-agent:
+    depends_on:
+      - otelcol-gateway
+    deploy:
+      resources:
+        limits:
+          cpus: '0.1'
+          memory: 512M
+    environment:
+      - SPLUNK_CONFIG=/etc/otelcol-config.yaml
+    image: quay.io/signalfx/splunk-otel-collector:latest
+    volumes:
+      - ${PWD}/agent-config.yaml:/etc/otelcol-config.yaml:ro
+    ports:
+      - "14268:14268" # Jaeger Thrift
+      - "55779:55679" # zpages extension
+
+  # Gateway
+  otelcol-gateway:
+    deploy:
+      resources:
+        limits:
+          cpus: '0.1'
+          memory: 512M
+    environment:
+      - SPLUNK_CONFIG=/etc/otelcol-config.yaml
+    image: quay.io/signalfx/splunk-otel-collector:latest
+    volumes:
+      - ${PWD}/gateway-config.yaml:/etc/otelcol-config.yaml:ro
+    ports:
+      - "4317:4317"   # OTLP
+      - "55679:55679" # zpages extension

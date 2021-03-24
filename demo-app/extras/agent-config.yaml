@@ -1,0 +1,97 @@
+extensions:
+  health_check:
+  zpages:
+
+receivers:
+  fluentforward:
+    endpoint: 127.0.0.1:8006
+  hostmetrics:
+    collection_interval: 10s
+    scrapers:
+      cpu:
+      disk:
+      filesystem:
+      memory:
+      network:
+      # System load average metrics https://en.wikipedia.org/wiki/Load_(computing)
+      load:
+      # Paging/Swap space utilization and I/O metrics
+      paging:
+      # Aggregated system process count metrics
+      processes:
+      # System processes metrics, disabled by default
+      # process:
+  jaeger:
+    protocols:
+      grpc:
+      thrift_binary:
+      thrift_compact:
+      thrift_http:
+  opencensus:
+  otlp:
+    protocols:
+      grpc:
+      http:
+  # This section is used to collect the OpenTelemetry Collector metrics
+  # Even if just a Splunk µAPM customer, these metrics are included
+  prometheus:
+    config:
+      scrape_configs:
+      - job_name: 'otel-collector'
+        scrape_interval: 10s
+        static_configs:
+        - targets: ['0.0.0.0:8888']
+        metric_relabel_configs:
+          - source_labels: [ __name__ ]
+            regex: '.*grpc_io.*'
+            action: drop
+  sapm:
+  signalfx:
+  zipkin:
+
+processors:
+  batch:
+  # Enabling the memory_limiter is strongly recommended for every pipeline.
+  # Configuration is based on the amount of memory allocated to the collector.
+  # In general, the ballast should be set to 1/3 of the collector's memory, the limit
+  # should be 90% of the collector's memory up to 2GB. The simplest way to specify the
+  # ballast size is set the value of SPLUNK_BALLAST_SIZE_MIB env variable. Alternatively, the
+  # --mem-ballast-size-mib command line flag can be passed and take priority.
+  # For more information about memory limiter, see
+  # https://github.com/open-telemetry/opentelemetry-collector/blob/master/processor/memorylimiter/README.md
+  memory_limiter:
+    check_interval: 2s
+    limit_mib: 450
+  resourcedetection:
+    detectors: [system]
+    override: true
+
+  # Optional: The following processor can be used to add a default "deployment.environment" attribute to the logs and 
+  # traces when it's not populated by instrumentation libraries.
+  # If enabled, make sure to enable this processor in the pipeline below.
+  #resource/add_environment:
+    #attributes:
+      #- action: insert
+        #value: staging/production/...
+        #key: deployment.environment
+
+exporters:
+  otlp:
+    insecure: true
+    endpoint: otelcol-gateway:4317
+
+service:
+  extensions: [health_check, zpages]
+  pipelines:
+    traces:
+      receivers: [jaeger, otlp, sapm, zipkin]
+      processors:
+      - memory_limiter
+      - batch
+      - resourcedetection
+      #- resource/add_environment
+      exporters: [otlp]
+    metrics:
+      receivers: [otlp, signalfx, prometheus, hostmetrics]
+      processors: [memory_limiter, batch, resourcedetection]
+      exporters: [otlp]
