@@ -45,7 +45,6 @@ receivers:
           - source_labels: [ __name__ ]
             regex: '.*grpc_io.*'
             action: drop
-  sapm:
   signalfx:
   zipkin:
 
@@ -84,7 +83,7 @@ service:
   extensions: [health_check, zpages]
   pipelines:
     traces:
-      receivers: [jaeger, otlp, sapm, zipkin]
+      receivers: [jaeger, otlp, zipkin]
       processors:
       - memory_limiter
       - batch
