@@ -6,4 +6,5 @@ fi
 cp extras/* tracing-examples/signalfx-tracing
 cp -r tracing-examples/opentelemetry-tracing/opentelemetry-java-tracing tracing-examples/signalfx-tracing
 cd tracing-examples/signalfx-tracing
-docker-compose build
+docker build -f okhttp-and-jedis.Dockerfile -t workshop-app .
+#docker-compose build

@@ -35,7 +35,7 @@ services:
     volumes:
       - ${PWD}/agent-config.yaml:/etc/otelcol-config.yaml:ro
     ports:
-      - "14268:14268" # Jaeger Thrift
+      - "4317:4317"   # OTLP
       - "55779:55679" # zpages extension
 
   # Gateway

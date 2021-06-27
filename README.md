@@ -9,13 +9,13 @@ This workshop assumes you:
 - If you plan to do the Splunk APM parts of the workshop then have at least a
   basic understanding of distributed tracing
   - If not then read [Traces and spans in SignalFx
-    APM](https://docs.signalfx.com/en/latest/apm/apm-concepts/apm-traces-spans.html)
+    APM](https://docs.splunk.com/Observability/apm/terms-concepts/traces-spans.html#nav-Traces-and-spans)
 - Understand the Splunk OpenTelemetry Connector and its associate components
   - If not read the documentation [here](https://github.com/signalfx/splunk-otel-collector)
 - Have used the Splunk Observability Suite UI before (e.g. know how to
   create/get an access token and what a realm is)
   - If not then read the product documentation on [access
-    tokens](https://docs.signalfx.com/en/latest/admin-guide/tokens.html#work-with-access-tokens)
+    tokens](https://docs.splunk.com/Observability/admin/authentication-tokens/org-tokens.html#admin-org-tokens)
   - A realm is a location a tenant is provisioned in. You can determine your
     realm by the URL used or under `My Profile`
 
@@ -23,7 +23,7 @@ Please ensure you have:
 
 - Access to a Splunk Observability Suite org
 - An access token
-- Mac or Linux based operating system
+- Mac or Linux based operating system (can also be done on Windows by changing commands)
 - [Docker installed](https://docs.docker.com/compose/install/) -- use the link, not homebrew
   - Optionally Kubernetes configured in Docker Desktop or another Kubernetes environment
 - The following tools installed: `curl`, `git`
